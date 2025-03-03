@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define tamanhoinicio 2
+#define tamanhoinicio 100
 
 // cadastro de cardápio
 typedef enum
@@ -114,6 +114,33 @@ void mostrar(cardapio *p1, int qitens)
     }
 }
 
+void removeritem(cardapio *menuremover,int *quantiDADE){
+    
+    char nomeremover[20];
+    getchar();
+    printf("Digite o nome do item que quer remover \n");
+    fgets(nomeremover,sizeof(nomeremover),stdin);
+    nomeremover[strcspn(nomeremover,"\n")]='\0';
+    int i;
+    int encontrei=0;
+    for(i=0;i<*quantiDADE;i++){
+    if(strcmp(menuremover[i].nome,nomeremover) == 0){
+        encontrei=1;
+        break;
+    }
+  }  
+  if(!encontrei){
+    printf("Item não encontrado\n");
+    return;
+  }
+int j;
+  for(j=i;j<*quantiDADE-1;i++){
+    menuremover[j]=menuremover[j+1];
+  }
+  (*quantiDADE)--;
+  printf("Item removido\n");
+}
+
 int main()
 {
     setlocale(LC_ALL, "portuguese");
@@ -145,8 +172,13 @@ int main()
         case 2:
             mostrar(menu, quantidade);
             break;
+        
+        case 3:
+        removeritem(menu,&quantidade);
+        break;
         }
     } while (opcao != 5);
     free(menu);
     return 0;
 }
+
