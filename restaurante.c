@@ -44,7 +44,7 @@ cardapio *expandirmemoria(cardapio *cardapioantigo, int *capacidade)
 
 void cadastrar(cardapio *p)
 {
-    
+
     printf("Digite o nome do prato\n");
     fgets(p->nome, sizeof(p->nome), stdin);
     p->nome[strcspn(p->nome, "\n")] = '\0';
@@ -90,7 +90,8 @@ void cadastrar(cardapio *p)
 void mostrar(cardapio *p1, int qitens)
 {
     int i;
-    if(qitens == 0){
+    if (qitens == 0)
+    {
         printf("Ainda não há itens no cardápio\n");
         return;
     }
@@ -118,13 +119,12 @@ void mostrar(cardapio *p1, int qitens)
     }
 }
 
-
 void removeritem(cardapio *menuremover, int *quantiDADE)
 {
 
     char nomeremover[20];
     printf("Digite o nome do item que quer remover \n");
-    getchar();
+    fflush(stdin);
     fgets(nomeremover, sizeof(nomeremover), stdin);
     nomeremover[strcspn(nomeremover, "\n")] = '\0';
     int i;
@@ -153,7 +153,6 @@ void removeritem(cardapio *menuremover, int *quantiDADE)
 
 void atualizar_item(cardapio *atualizacao, int *quantidadE)
 {
-    getchar();
     printf("Digite o nome do item que irá atualizar\n");
     char nome_atualizar[20];
     fgets(nome_atualizar, sizeof(nome_atualizar), stdin);
@@ -179,17 +178,18 @@ void atualizar_item(cardapio *atualizacao, int *quantidadE)
             switch (a)
             {
             case 1:
-            printf("Informe o novo nome\n");   
-            fgets(atualizacao[i].nome, sizeof(atualizacao[i].nome), stdin);
+                printf("Informe o novo nome\n");
+                fgets(atualizacao[i].nome, sizeof(atualizacao[i].nome), stdin);
                 atualizacao[i].nome[strcspn(atualizacao[i].nome, "\n")] = '\0';
+                printf("O nome do item foi atualizado para %s",atualizacao[i].nome);
                 break;
             case 2:
-            printf("Informe a nova descrição\n");   
-            fgets(atualizacao[i].descricao, sizeof(atualizacao[i].descricao), stdin);
+                printf("Informe a nova descrição\n");
+                fgets(atualizacao[i].descricao, sizeof(atualizacao[i].descricao), stdin);
                 atualizacao[i].descricao[strcspn(atualizacao[i].descricao, "\n")] = '\0';
                 break;
             case 3:
-                
+
                 printf("Informe a nova categoria do prato\nEntrada\nPrincipal\nSobremesa\nBebida\n");
                 char categoria[20];
                 while (1)
@@ -227,13 +227,13 @@ void atualizar_item(cardapio *atualizacao, int *quantidadE)
                 printf("Informe o novo preço do pedido\n");
                 scanf("%f", &atualizacao[i].preco);
             }
-        }  
-}
-else
-{
-    printf("Item não encontrado");
-    return;
-}
+        }
+    }
+    else
+    {
+        printf("Item não encontrado");
+        return;
+    }
 }
 
 int main()
@@ -242,7 +242,13 @@ int main()
     int opcao;
     int quantidade = 0;
     int capacidadeatual = tamanhoinicio;
-
+    int p;
+    printf("Olá, esse é o sistema de gerenciamento do seu restaruante!\nDigite:\n");
+    while(1){
+    printf("1 - Gerenciar cardapio\n2 - Gerenciar pedidos\n3 - Sair\n");
+    scanf("%d",&p);
+    getchar();
+    if(p==1){
     cardapio *menu = (cardapio *)malloc(capacidadeatual * sizeof(cardapio));
     if (menu == NULL)
     {
@@ -273,10 +279,21 @@ int main()
             removeritem(menu, &quantidade);
             break;
         case 4:
-        atualizar_item(menu,&quantidade);
-        break;
+            atualizar_item(menu, &quantidade);
+            break;
         }
     } while (opcao != 5);
-free(menu);
+    free(menu);
+}
+    else if(p==2){
+// aqui vai ficar o gerenciamento dos pedidos
+    }
+   else if(p==3){
+     break;
+   }
+    else{
+        printf("Opção inválida! Digite uma das opções acima\n");
+    }
+}
     return 0;
 }
