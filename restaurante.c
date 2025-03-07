@@ -190,7 +190,11 @@ void atualizar_item(cardapio *atualizacao, int *quantidadE)
                 break;
             case 3:
 
-                printf("Informe a nova categoria do prato\nEntrada\nPrincipal\nSobremesa\nBebida\n");
+                printf("Informe a nova categoria do prato\n");
+                printf("Entrada\n");
+                printf("Principal\n");
+                printf("Sobremesa\n");
+                printf("Bebida\n");
                 char categoria[20];
                 while (1)
                 {
