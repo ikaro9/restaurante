@@ -61,7 +61,7 @@ Cardapio *expandirMemoriaCardapio(Cardapio *cardapioAntigo, int *capacidade)
 
 void cadastrarItem(Cardapio *item)
 {
-  getchar();
+  
   printf("Digite o nome do prato: ");
   fgets(item->nome, sizeof(item->nome), stdin);
   item->nome[strcspn(item->nome, "\n")] = '\0';
