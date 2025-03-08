@@ -62,7 +62,6 @@ Cardapio *expandirmemoriaitens(Cardapio *itens_Antigos, int *quantidade_Itens, i
 
 void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio, int qitens)
 {
-    
     printf("Digite o seu nome:\n");
     getchar(); 
     fgets(pedir[*quantipedidos].cliente, sizeof(pedir[*quantipedidos].cliente), stdin);
@@ -124,7 +123,25 @@ void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio
         }
         if (!encontrado) printf("Item não encontrado. Tente novamente.\n");
     }
+    printf("Selecione o status do pedido, digitando o número correspondente:\n");
+    printf("1 - Pendente\n2 - Em preparo\n3 - Pronto\n4 - Entregue\n");
+    int escolha;
+    scanf("%d", &escolha);
+    getchar();
+    Pedido *novoPedido = &pedir[*quantipedidos];
+    novoPedido->itens = (Cardapio *)malloc(maximo * sizeof(Cardapio));
+    novoPedido->quantidades = (int *)malloc(maximo * sizeof(int));
+    switch (escolha) {
+        case 1: novoPedido->status = PENDENTE; break;
+        case 2: novoPedido->status = EM_PREPARO; break;
+        case 3: novoPedido->status = PRONTO; break;
+        case 4: novoPedido->status = ENTREGUE; break;
+        default: printf("Opção inválida! Definindo como Pendente.\n"); novoPedido->status = PENDENTE;
+    }
+    
     printf("\nPedido cadastrado! Total: R$ %.2f\n", pedir[*quantipedidos].totalpagar);
+    
+    
     (*quantipedidos)++;
 }
 
