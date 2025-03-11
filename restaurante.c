@@ -62,8 +62,8 @@ Cardapio *expandirmemoriaitens(Cardapio *itens_Antigos, int *quantidade_Itens, i
 
 void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio, int qitens)
 {
-    printf("Digite seu nome:\n");
-    getchar();
+    printf("Digite seu nome: ");
+    fflush(stdin);
     fgets(pedir[*quantipedidos].cliente, sizeof(pedir[*quantipedidos].cliente), stdin);
     pedir[*quantipedidos].cliente[strcspn(pedir[*quantipedidos].cliente, "\n")] = '\0';
 
@@ -87,7 +87,7 @@ void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio
     {
         printf("Cardápio:\n");
         for (int i = 0; i < qitens; i++)
-            printf("%d - %s (R$ %.2f)\n", i + 1, itenscardapio[i].nome, itenscardapio[i].preco);
+            printf("- %s (R$ %.2f)\n", itenscardapio[i].nome, itenscardapio[i].preco);
         printf("Digite o NOME do item (ou 'sair' para finalizar): ");
         fgets(additem, sizeof(additem), stdin);
         additem[strcspn(additem, "\n")] = '\0';
@@ -281,7 +281,7 @@ void cadastrarItem(Cardapio *item)
 
     printf("Digite o preço do pedido: ");
     scanf("%f", &item->preco);
-    printf("Você adicionou %s ao cardápio!", item->nome);
+    printf("Você adicionou %s ao cardápio!\n", item->nome);
 }
 
 void mostrarCardapio(Cardapio *cardapio, int quantidadeItens)
@@ -421,6 +421,258 @@ void atualizarItem(Cardapio *cardapio, int *quantidadeItens)
     printf("Item atualizado!\n");
 }
 
+void mostrarPedidos(Pedido *pedido, int quantidadePedidos)
+{
+    if (quantidadePedidos == 0)
+    {
+        printf("Nenhum pedido cadastrado.\n");
+        return;
+    }
+
+    for (int i = 0; i < quantidadePedidos; i++)
+    {
+        printf("Pedido ID: %d\n", pedido[i].id);
+        printf("Cliente: %s\n", pedido[i].cliente);
+        printf("Status: ");
+        switch (pedido[i].status)
+        {
+        case PENDENTE:
+            printf("Pendente\n");
+            break;
+        case EM_PREPARO:
+            printf("Em Preparo\n");
+            break;
+        case PRONTO:
+            printf("Pronto\n");
+            break;
+        case ENTREGUE:
+            printf("Entregue\n");
+            break;
+        }
+        printf("Itens do Pedido:\n");
+        for (int j = 0; j < pedido[i].quantidadeItens; j++)
+        {
+            printf("%d x %s (R$ %.2f)\n", pedido[i].quantidades[j], pedido[i].itens[j].nome, pedido[i].itens[j].preco);
+        }
+        printf("Total a pagar: R$ %.2f\n", pedido[i].totalpagar);
+    }
+}
+
+void atualizarPedido(Pedido *pedidos, int quantidadePedidos, Cardapio *cardapio, int quantidadeItens)
+{
+    if (quantidadePedidos == 0)
+    {
+        printf("Nenhum pedido registrado para atualizar.\n");
+        return;
+    }
+
+    printf("Selecione o pedido que deseja atualizar:\n");
+    for (int i = 0; i < quantidadePedidos; i++)
+    {
+        printf("%d - Pedido ID: %d, Cliente: %s, Status: ", i + 1, pedidos[i].id, pedidos[i].cliente);
+        switch (pedidos[i].status)
+        {
+        case PENDENTE:
+            printf("Pendente\n");
+            break;
+        case EM_PREPARO:
+            printf("Em preparo\n");
+            break;
+        case PRONTO:
+            printf("Pronto\n");
+            break;
+        case ENTREGUE:
+            printf("Entregue\n");
+            break;
+        }
+    }
+
+    int idPedido;
+    printf("Digite o ID do pedido que deseja atualizar: ");
+    scanf("%d", &idPedido);
+    getchar();
+
+    if (idPedido < 1 || idPedido > quantidadePedidos)
+    {
+        printf("Pedido não encontrado.\n");
+        return;
+    }
+
+    Pedido *pedidoSelecionado = &pedidos[idPedido - 1];
+
+    int opcao;
+    printf("O que deseja alterar?\n");
+    printf("1 - Status\n");
+    printf("2 - Alterar itens no pedido\n");
+    printf("3 - Sair\n");
+    printf("Escolha uma opção: ");
+    scanf("%d", &opcao);
+    getchar();
+
+    switch (opcao)
+    {
+    case 1:
+        printf("Selecione o novo status para o pedido:\n");
+        printf("1 - Pendente\n");
+        printf("2 - Em preparo\n");
+        printf("3 - Pronto\n");
+        printf("4 - Entregue\n");
+        int novoStatus;
+        scanf("%d", &novoStatus);
+        getchar();
+
+        switch (novoStatus)
+        {
+        case 1:
+            pedidoSelecionado->status = PENDENTE;
+            break;
+        case 2:
+            pedidoSelecionado->status = EM_PREPARO;
+            break;
+        case 3:
+            pedidoSelecionado->status = PRONTO;
+            break;
+        case 4:
+            pedidoSelecionado->status = ENTREGUE;
+            break;
+        default:
+            printf("Opção inválida, status não alterado.\n");
+            break;
+        }
+        break;
+
+    case 2:
+        printf("1 - Adicionar item ao pedido\n");
+        printf("2 - Remover item do pedido\n");
+        printf("3 - Alterar quantidade de item\n");
+        int alteracaoItens;
+        scanf("%d", &alteracaoItens);
+        getchar();
+
+        switch (alteracaoItens)
+        {
+        case 1:
+        {
+            char nomeItem[50];
+            printf("Digite o nome do item que deseja adicionar: ");
+            fgets(nomeItem, sizeof(nomeItem), stdin);
+            nomeItem[strcspn(nomeItem, "\n")] = '\0';
+
+            int encontrado = 0;
+            for (int i = 0; i < quantidadeItens; i++)
+            {
+                if (strcmp(nomeItem, cardapio[i].nome) == 0)
+                {
+                    printf("Quantos deste item você deseja adicionar? ");
+                    int qtd;
+                    scanf("%d", &qtd);
+                    getchar();
+                    int posicao = pedidoSelecionado->quantidadeItens;
+                    pedidoSelecionado->itens[posicao] = cardapio[i];
+                    pedidoSelecionado->quantidades[posicao] = qtd;
+                    pedidoSelecionado->quantidadeItens++;
+                    pedidoSelecionado->totalpagar += cardapio[i].preco * qtd;
+                    printf("Item adicionado ao pedido!\n");
+                    encontrado = 1;
+                    break;
+                }
+            }
+
+            if (!encontrado)
+            {
+                printf("Item não encontrado no cardápio.\n");
+            }
+            break;
+        }
+
+        case 2:
+        {
+            char nomeRemover[50];
+            printf("Digite o nome do item que deseja remover: ");
+            fgets(nomeRemover, sizeof(nomeRemover), stdin);
+            nomeRemover[strcspn(nomeRemover, "\n")] = '\0';
+
+            int encontrado = 0;
+            for (int i = 0; i < pedidoSelecionado->quantidadeItens; i++)
+            {
+                if (strcmp(pedidoSelecionado->itens[i].nome, nomeRemover) == 0)
+                {
+                    pedidoSelecionado->totalpagar -= pedidoSelecionado->itens[i].preco * pedidoSelecionado->quantidades[i];
+                    for (int j = i; j < pedidoSelecionado->quantidadeItens - 1; j++)
+                    {
+                        pedidoSelecionado->itens[j] = pedidoSelecionado->itens[j + 1];
+                        pedidoSelecionado->quantidades[j] = pedidoSelecionado->quantidades[j + 1];
+                    }
+                    pedidoSelecionado->quantidadeItens--;
+                    printf("Item removido do pedido!\n");
+                    encontrado = 1;
+                    break;
+                }
+            }
+
+            if (!encontrado)
+            {
+                printf("Item não encontrado no pedido.\n");
+            }
+            break;
+        }
+
+        case 3:
+        {
+            char nomeAlterar[50];
+            printf("Digite o NOME do item que deseja alterar a quantidade: ");
+            fgets(nomeAlterar, sizeof(nomeAlterar), stdin);
+            nomeAlterar[strcspn(nomeAlterar, "\n")] = '\0';
+
+            int encontrado = 0;
+            for (int i = 0; i < pedidoSelecionado->quantidadeItens; i++)
+            {
+                if (strcmp(pedidoSelecionado->itens[i].nome, nomeAlterar) == 0)
+                {
+                    printf("Digite a nova quantidade: ");
+                    int novaQuantidade;
+                    scanf("%d", &novaQuantidade);
+                    getchar();
+
+                    if (novaQuantidade > 0)
+                    {
+                        pedidoSelecionado->totalpagar -= pedidoSelecionado->itens[i].preco * pedidoSelecionado->quantidades[i];
+                        pedidoSelecionado->quantidades[i] = novaQuantidade;
+                        pedidoSelecionado->totalpagar += pedidoSelecionado->itens[i].preco * novaQuantidade;
+                        printf("Quantidade alterada!\n");
+                    }
+                    else
+                    {
+                        printf("Quantidade inválida.\n");
+                    }
+                    encontrado = 1;
+                    break;
+                }
+            }
+
+            if (!encontrado)
+            {
+                printf("Item não encontrado no pedido.\n");
+            }
+            break;
+        }
+
+        default:
+            printf("Opção inválida.\n");
+            break;
+        }
+        break;
+
+    case 3:
+        printf("Saindo da atualização de pedido.\n");
+        break;
+
+    default:
+        printf("Opção inválida.\n");
+        break;
+    }
+}
+
 int main()
 {
     setlocale(LC_ALL, "Portuguese");
@@ -505,14 +757,13 @@ int main()
                 cadastrarpedidos(pedido, &quantidadePedidos, cardapio, quantidadeItens);
                 break;
             case 2:
-                // função de mostrar os pedidos
+                mostrarPedidos(pedido, quantidadePedidos);
                 break;
             case 3:
                 removerPedido(pedido, &quantidadePedidos);
-
                 break;
             case 4:
-                // função de alterar os pedidos
+                atualizarPedido(pedido, quantidadePedidos, cardapio, quantidadeItens);
                 break;
             }
         }
@@ -525,7 +776,7 @@ int main()
             printf("Opção inválida! Digite uma das opções acima\n");
         }
     }
-
     free(cardapio);
+    free(pedido);
     return 0;
 }
