@@ -62,8 +62,8 @@ Cardapio *expandirmemoriaitens(Cardapio *itens_Antigos, int *quantidade_Itens, i
 
 void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio, int qitens)
 {
-    printf("Digite o seu nome:\n");
-    getchar(); 
+    printf("Digite seu nome:\n");
+    getchar();
     fgets(pedir[*quantipedidos].cliente, sizeof(pedir[*quantipedidos].cliente), stdin);
     pedir[*quantipedidos].cliente[strcspn(pedir[*quantipedidos].cliente, "\n")] = '\0';
 
@@ -74,78 +74,132 @@ void cadastrarpedidos(Pedido *pedir, int *quantipedidos, Cardapio *itenscardapio
     pedir[*quantipedidos].itens = (Cardapio *)malloc(maximo * sizeof(Cardapio));
     pedir[*quantipedidos].quantidades = (int *)malloc(maximo * sizeof(int));
 
-  
-    if (pedir[*quantipedidos].itens == NULL || pedir[*quantipedidos].quantidades == NULL) {
+    if (pedir[*quantipedidos].itens == NULL || pedir[*quantipedidos].quantidades == NULL)
+    {
         printf("Erro ao alocar memória para os itens do pedido.\n");
         return;
     }
 
     char additem[50];
     int quantidade;
-    
+
     while (1)
     {
         printf("Cardápio:\n");
         for (int i = 0; i < qitens; i++)
-        printf("%d - %s (R$ %.2f)\n", i + 1, itenscardapio[i].nome, itenscardapio[i].preco);
-        printf("Digite o nome do item (ou 'sair' para finalizar): ");
+            printf("%d - %s (R$ %.2f)\n", i + 1, itenscardapio[i].nome, itenscardapio[i].preco);
+        printf("Digite o NOME do item (ou 'sair' para finalizar): ");
         fgets(additem, sizeof(additem), stdin);
         additem[strcspn(additem, "\n")] = '\0';
 
-        if (strcmp(additem, "sair") == 0) 
-        break;
+        if (strcmp(additem, "sair") == 0)
+            break;
 
         int encontrado = 0;
         for (int i = 0; i < qitens; i++)
         {
             if (strcmp(additem, itenscardapio[i].nome) == 0)
             {
-                
-                printf("Quantidade: ");
-                if (scanf("%d", &quantidade) != 1 || quantidade <= 0) {
-                    printf("Quantidade inválida. Tente novamente.\n");
-                    while (getchar() != '\n'); 
-                }
-                   getchar();
 
-          
+                printf("Quantidade: ");
+                if (scanf("%d", &quantidade) != 1 || quantidade <= 0)
+                {
+                    printf("Quantidade inválida. Tente novamente.\n");
+                    while (getchar() != '\n')
+                        ;
+                }
+                getchar();
+
                 int itemposi = pedir[*quantipedidos].quantidadeItens;
-                pedir[*quantipedidos].itens[itemposi] = itenscardapio[i]; 
-                pedir[*quantipedidos].quantidades[itemposi] = quantidade; 
+                pedir[*quantipedidos].itens[itemposi] = itenscardapio[i];
+                pedir[*quantipedidos].quantidades[itemposi] = quantidade;
                 pedir[*quantipedidos].quantidadeItens++;
 
-                pedir[*quantipedidos].totalpagar =   pedir[*quantipedidos].totalpagar +itenscardapio[i].preco * quantidade;
+                pedir[*quantipedidos].totalpagar = pedir[*quantipedidos].totalpagar + itenscardapio[i].preco * quantidade;
 
                 printf("Item adicionado!\n");
                 encontrado = 1;
                 break;
             }
         }
-        if (!encontrado) printf("Item não encontrado. Tente novamente.\n");
+        if (!encontrado)
+            printf("Item não encontrado. Tente novamente.\n");
     }
-    printf("Selecione o status do pedido, digitando o número correspondente:\n");
+    printf("Selecione o status do pedido, digitando o NÚMERO correspondente:\n");
     printf("1 - Pendente\n2 - Em preparo\n3 - Pronto\n4 - Entregue\n");
     int escolha;
     scanf("%d", &escolha);
     getchar();
     Pedido *novoPedido = &pedir[*quantipedidos];
-    novoPedido->itens = (Cardapio *)malloc(maximo * sizeof(Cardapio));
-    novoPedido->quantidades = (int *)malloc(maximo * sizeof(int));
-    switch (escolha) {
-        case 1: novoPedido->status = PENDENTE; break;
-        case 2: novoPedido->status = EM_PREPARO; break;
-        case 3: novoPedido->status = PRONTO; break;
-        case 4: novoPedido->status = ENTREGUE; break;
-        default: printf("Opção inválida! Definindo como Pendente.\n"); novoPedido->status = PENDENTE;
+    switch (escolha)
+    {
+    case 1:
+        novoPedido->status = PENDENTE;
+        break;
+    case 2:
+        novoPedido->status = EM_PREPARO;
+        break;
+    case 3:
+        novoPedido->status = PRONTO;
+        break;
+    case 4:
+        novoPedido->status = ENTREGUE;
+        break;
+    default:
+        printf("Opção inválida! Definindo como Pendente.\n");
+        novoPedido->status = PENDENTE;
     }
-    
-    printf("\nPedido cadastrado! Total: R$ %.2f\n", pedir[*quantipedidos].totalpagar);
-    
-    
+
+    printf("Pedido cadastrado! Total: R$ %.2f\n", pedir[*quantipedidos].totalpagar);
+
     (*quantipedidos)++;
 }
 
+void removerPedido(Pedido *pedidos, int *quantidadePedidos)
+{
+    if (*quantidadePedidos == 0)
+    {
+        printf("Não há pedidos para remover.\n");
+        return;
+    }
 
+    int idRemover;
+    int encontrado = 0;
+
+    do
+    {
+        printf("Digite o ID do pedido que deseja remover: ");
+        scanf("%d", &idRemover);
+        getchar();
+        int encontrado = 0;
+
+        for (int i = 0; i < *quantidadePedidos; i++)
+        {
+            if (pedidos[i].id == idRemover)
+            {
+                encontrado = 1;
+
+                free(pedidos[i].itens);
+                free(pedidos[i].quantidades);
+
+                for (int j = i; j < *quantidadePedidos - 1; j++)
+                {
+                    pedidos[j] = pedidos[j + 1];
+                    pedidos[j].id = j + 1;
+                }
+
+                (*quantidadePedidos)--;
+                printf("Pedido removido com sucesso!\n");
+                return;
+            }
+        }
+
+        if (!encontrado)
+        {
+            printf("Pedido com ID %d não encontrado! Digite um Id válido\n", idRemover);
+        }
+    } while (!encontrado);
+}
 
 Pedido *expandirMemoriaPedido(Pedido *pedidoAntigo, int *capacidadePedidos)
 {
@@ -224,8 +278,10 @@ void cadastrarItem(Cardapio *item)
             printf("Opção inválida, digite uma das opções acima: ");
         }
     }
+
     printf("Digite o preço do pedido: ");
     scanf("%f", &item->preco);
+    printf("Você adicionou %s ao cardápio!", item->nome);
 }
 
 void mostrarCardapio(Cardapio *cardapio, int quantidadeItens)
@@ -262,7 +318,7 @@ void mostrarCardapio(Cardapio *cardapio, int quantidadeItens)
 void removerItem(Cardapio *cardapio, int *quantidadeItens)
 {
     char nomeRemover[20];
-    printf("Digite o nome do item que deseja remover: ");
+    printf("Digite o NOME do item que deseja remover: ");
     fgets(nomeRemover, sizeof(nomeRemover), stdin);
     nomeRemover[strcspn(nomeRemover, "\n")] = '\0';
     int encontrado = 0;
@@ -289,7 +345,7 @@ void removerItem(Cardapio *cardapio, int *quantidadeItens)
 void atualizarItem(Cardapio *cardapio, int *quantidadeItens)
 {
     char nomeAtualizar[20];
-    printf("Digite o nome do item que deseja atualizar: ");
+    printf("Digite o NOME do item que deseja atualizar: ");
     fgets(nomeAtualizar, sizeof(nomeAtualizar), stdin);
     nomeAtualizar[strcspn(nomeAtualizar, "\n")] = '\0';
     int encontrado = 0;
@@ -298,7 +354,7 @@ void atualizarItem(Cardapio *cardapio, int *quantidadeItens)
         if (strcmp(cardapio[i].nome, nomeAtualizar) == 0)
         {
             encontrado = 1;
-            printf("Item encontrado! O que deseja alterar?\n");
+            printf("Item encontrado! Digite o NÚMERO correspondente a categoria que deseja alterar?\n");
             printf("1 - Nome\n2 - Descrição\n3 - Categoria\n4 - Preço\n");
             int opcao;
             scanf("%d", &opcao);
@@ -362,6 +418,7 @@ void atualizarItem(Cardapio *cardapio, int *quantidadeItens)
     {
         printf("Item não encontrado.\n");
     }
+    printf("Item atualizado!\n");
 }
 
 int main()
@@ -451,7 +508,8 @@ int main()
                 // função de mostrar os pedidos
                 break;
             case 3:
-                // função de remover os pedidos
+                removerPedido(pedido, &quantidadePedidos);
+
                 break;
             case 4:
                 // função de alterar os pedidos
